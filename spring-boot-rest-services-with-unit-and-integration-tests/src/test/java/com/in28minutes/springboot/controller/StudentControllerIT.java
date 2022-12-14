@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import com.in28minutes.springboot.StudentServicesApplication;
-import com.in28minutes.springboot.model.Course;
 import org.json.JSONException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -30,6 +30,20 @@ public class StudentControllerIT {
     HttpHeaders headers = new HttpHeaders();
 
     @Test
+    public void testRetrieveAllStudents() throws JSONException {
+
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/students/getAll"),
+                HttpMethod.GET, entity, String.class);
+
+        String expected = "[{\"id\":\"Student1\",\"name\":\"Ahmet Burhan\",\"department\":\"History\",\"gpa\":2.7},{\"id\":\"Student2\",\"name\":\"Selim Sek\",\"department\":\"History\",\"gpa\":2.48},{\"id\":\"Student3\",\"name\":\"Behzat Çınar\",\"department\":\"Law\",\"gpa\":1.9},{\"id\":\"Student4\",\"name\":\"Bahar Songül\",\"department\":\"Math\",\"gpa\":3.4}]";
+
+        JSONAssert.assertEquals(expected, response.getBody(), false);
+    }
+
+    @Test
     public void testRetrieveStudentCourse() throws JSONException {
 
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
@@ -43,22 +57,23 @@ public class StudentControllerIT {
         JSONAssert.assertEquals(expected, response.getBody(), false);
     }
 
+
     @Test
-    public void addCourse() {
-
-        Course course = new Course("Course1", "Spring", "10Steps",
-                List.of("Learn Maven", "Import Project", "First Example", "Second Example"));
-
-        HttpEntity<Course> entity = new HttpEntity<>(course, headers);
-
+    public void deleteCourseFromStudentWhenCourseNotExists() {
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<String> response = restTemplate.exchange(
-                createURLWithPort("/students/Student1/courses"),
-                HttpMethod.POST, entity, String.class);
+                createURLWithPort("/students/Student1/courses/delete/Course15"),
+                HttpMethod.GET, entity, String.class);
+        Assertions.assertFalse(Boolean.valueOf(response.getBody()));
+    }
 
-        String actual = response.getHeaders().get(HttpHeaders.LOCATION).get(0);
-
-        assertTrue(actual.contains("/students/Student1/courses/"));
-
+    @Test
+    public void deleteCourseFromStudentWhenCourseExists() {
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/students/Student1/courses/delete/Course1"),
+                HttpMethod.GET, entity, String.class);
+        Assertions.assertTrue(Boolean.valueOf(response.getBody()));
     }
 
     private String createURLWithPort(String uri) {

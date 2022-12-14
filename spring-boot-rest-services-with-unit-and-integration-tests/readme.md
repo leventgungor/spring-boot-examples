@@ -121,40 +121,39 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.in28minutes.springboot.model.Course;
 import com.in28minutes.springboot.service.StudentService;
 
 @RestController
 public class StudentController {
 
-    @Autowired
-    private StudentService studentService;
+  @Autowired
+  private StudentService studentService;
 
-    @GetMapping("/students/{studentId}/courses")
-    public List<Course> retrieveCoursesForStudent(@PathVariable String studentId) {
-        return studentService.retrieveCourses(studentId);
-    }
+  @GetMapping("/students/{studentId}/courses")
+  public List<Course> retrieveCoursesForStudent(@PathVariable String studentId) {
+    return studentService.retrieveCourses(studentId);
+  }
 
-    @GetMapping("/students/{studentId}/courses/{courseId}")
-    public Course retrieveDetailsForCourse(@PathVariable String studentId,
-                                           @PathVariable String courseId) {
-        return studentService.retrieveCourse(studentId, courseId);
-    }
+  @GetMapping("/students/{studentId}/courses/{courseId}")
+  public Course retrieveDetailsForCourse(@PathVariable String studentId,
+                                         @PathVariable String courseId) {
+    return studentService.retrieveCourse(studentId, courseId);
+  }
 
-    @PostMapping("/students/{studentId}/courses")
-    public ResponseEntity<Void> registerStudentForCourse(
-            @PathVariable String studentId, @RequestBody Course newCourse) {
+  @PostMapping("/students/{studentId}/courses")
+  public ResponseEntity<Void> registerStudentForCourse(
+          @PathVariable String studentId, @RequestBody Course newCourse) {
 
-        Course course = studentService.addCourse(studentId, newCourse);
+    Course course = studentService.addCourse(studentId, newCourse);
 
-        if (course == null)
-            return ResponseEntity.noContent().build();
+    if (course == null)
+      return ResponseEntity.noContent().build();
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path(
-                "/{id}").buildAndExpand(course.getId()).toUri();
+    URI location = ServletUriComponentsBuilder.fromCurrentRequest().path(
+            "/{id}").buildAndExpand(course.getId()).toUri();
 
-        return ResponseEntity.created(location).build();
-    }
+    return ResponseEntity.created(location).build();
+  }
 
 }
 ```
@@ -164,7 +163,7 @@ public class StudentController {
 ### /src/main/java/com/in28minutes/springboot/model/Course.java
 
 ```java
-package com.in28minutes.springboot.model;
+package com.in28minutes.springboot.entity;
 
 import java.util.List;
 
@@ -183,7 +182,7 @@ public record Course(String id,
 ### /src/main/java/com/in28minutes/springboot/model/Student.java
 
 ```java
-package com.in28minutes.springboot.model;
+package com.in28minutes.springboot.entity;
 
 import java.util.List;
 
@@ -207,14 +206,13 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.in28minutes.springboot.model.Course;
-import com.in28minutes.springboot.model.Student;
+import com.in28minutes.springboot.entity.StudentEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StudentService {
 
-  private static final List<Student> students = new ArrayList<>();
+  private static final List<StudentEntity> students = new ArrayList<>();
 
   private final SecureRandom random = new SecureRandom();
 
@@ -232,21 +230,21 @@ public class StudentService {
     Course courseFour = new Course("Course4", "Maven", "Most popular maven course on internet!",
             List.of("Pom.xml", "Build Life Cycle", "Parent POM", "Importing into Eclipse"));
 
-    Student ranga = new Student("Student1", "Ranga Karanam", "Hiker, Programmer and Architect",
+    StudentEntity ranga = new StudentEntity("Student1", "Ranga Karanam", "Hiker, Programmer and Architect",
             new ArrayList<>(List.of(courseOne, courseTwo, courseThree, courseFour)));
 
-    Student satish = new Student("Student2", "Satish T", "Hiker, Programmer and Architect",
+    StudentEntity satish = new StudentEntity("Student2", "Satish T", "Hiker, Programmer and Architect",
             new ArrayList<>(List.of(courseOne, courseTwo, courseThree, courseFour)));
 
     students.add(ranga);
     students.add(satish);
   }
 
-  public List<Student> retrieveAllStudents() {
+  public List<StudentEntity> retrieveAllStudents() {
     return students;
   }
 
-  public Student retrieveStudent(String studentId) {
+  public StudentEntity retrieveStudent(String studentId) {
     return students.stream()
             .filter(student -> student.id().equals(studentId))
             .findAny()
@@ -255,13 +253,13 @@ public class StudentService {
   }
 
   public List<Course> retrieveCourses(String studentId) {
-    Student student = retrieveStudent(studentId);
+    StudentEntity student = retrieveStudent(studentId);
 
     return student == null ? null : student.courses();
   }
 
   public Course retrieveCourse(String studentId, String courseId) {
-    Student student = retrieveStudent(studentId);
+    StudentEntity student = retrieveStudent(studentId);
 
     if (student == null) {
       return null;
@@ -275,7 +273,7 @@ public class StudentService {
   }
 
   public Course addCourse(String studentId, Course course) {
-    Student student = retrieveStudent(studentId);
+    StudentEntity student = retrieveStudent(studentId);
 
     if (student == null) {
       return null;
@@ -346,73 +344,72 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.in28minutes.springboot.model.Course;
 import com.in28minutes.springboot.service.StudentService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = StudentController.class, secure = false)
 public class StudentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockBean
-    private StudentService studentService;
+  @MockBean
+  private StudentService studentService;
 
-    Course mockCourse = new Course("Course1", "Spring", "10Steps",
-            Arrays.asList("Learn Maven", "Import Project", "First Example",
-                    "Second Example"));
+  Course mockCourse = new Course("Course1", "Spring", "10Steps",
+          Arrays.asList("Learn Maven", "Import Project", "First Example",
+                  "Second Example"));
 
-    String exampleCourseJson = "{\"name\":\"Spring\",\"description\":\"10Steps\",\"steps\":[\"Learn Maven\",\"Import Project\",\"First Example\",\"Second Example\"]}";
+  String exampleCourseJson = "{\"name\":\"Spring\",\"description\":\"10Steps\",\"steps\":[\"Learn Maven\",\"Import Project\",\"First Example\",\"Second Example\"]}";
 
-    @Test
-    public void retrieveDetailsForCourse() throws Exception {
+  @Test
+  public void retrieveDetailsForCourse() throws Exception {
 
-        Mockito.when(
-                studentService.retrieveCourse(Mockito.anyString(),
-                        Mockito.anyString())).thenReturn(mockCourse);
+    Mockito.when(
+            studentService.retrieveCourse(Mockito.anyString(),
+                    Mockito.anyString())).thenReturn(mockCourse);
 
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
-                "/students/Student1/courses/Course1").accept(
-                MediaType.APPLICATION_JSON);
+    RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+            "/students/Student1/courses/Course1").accept(
+            MediaType.APPLICATION_JSON);
 
-        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+    MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-        System.out.println(result.getResponse());
-        String expected = "{id:Course1,name:Spring,description:10Steps}";
+    System.out.println(result.getResponse());
+    String expected = "{id:Course1,name:Spring,description:10Steps}";
 
-        // {"id":"Course1","name":"Spring","description":"10 Steps, 25 Examples and 10K Students","steps":["Learn Maven","Import Project","First Example","Second Example"]}
+    // {"id":"Course1","name":"Spring","description":"10 Steps, 25 Examples and 10K Students","steps":["Learn Maven","Import Project","First Example","Second Example"]}
 
-        JSONAssert.assertEquals(expected, result.getResponse()
-                .getContentAsString(), false);
-    }
+    JSONAssert.assertEquals(expected, result.getResponse()
+            .getContentAsString(), false);
+  }
 
-    @Test
-    public void createStudentCourse() throws Exception {
-        Course mockCourse = new Course("1", "Smallest Number", "1",
-                Arrays.asList("1", "2", "3", "4"));
+  @Test
+  public void createStudentCourse() throws Exception {
+    Course mockCourse = new Course("1", "Smallest Number", "1",
+            Arrays.asList("1", "2", "3", "4"));
 
-        // studentService.addCourse to respond back with mockCourse
-        Mockito.when(
-                studentService.addCourse(Mockito.anyString(),
-                        Mockito.any(Course.class))).thenReturn(mockCourse);
+    // studentService.addCourse to respond back with mockCourse
+    Mockito.when(
+            studentService.addCourse(Mockito.anyString(),
+                    Mockito.any(Course.class))).thenReturn(mockCourse);
 
-        // Send course as body to /students/Student1/courses
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/students/Student1/courses")
-                .accept(MediaType.APPLICATION_JSON).content(exampleCourseJson)
-                .contentType(MediaType.APPLICATION_JSON);
+    // Send course as body to /students/Student1/courses
+    RequestBuilder requestBuilder = MockMvcRequestBuilders
+            .post("/students/Student1/courses")
+            .accept(MediaType.APPLICATION_JSON).content(exampleCourseJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
-        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+    MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-        MockHttpServletResponse response = result.getResponse();
+    MockHttpServletResponse response = result.getResponse();
 
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+    assertEquals(HttpStatus.CREATED.value(), response.getStatus());
 
-        assertEquals("http://localhost/students/Student1/courses/1",
-                response.getHeader(HttpHeaders.LOCATION));
+    assertEquals("http://localhost/students/Student1/courses/1",
+            response.getHeader(HttpHeaders.LOCATION));
 
-    }
+  }
 
 }
 ```

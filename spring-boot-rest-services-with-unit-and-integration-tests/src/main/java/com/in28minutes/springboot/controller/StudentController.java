@@ -2,8 +2,9 @@ package com.in28minutes.springboot.controller;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
-import com.in28minutes.springboot.model.Course;
+import com.in28minutes.springboot.entity.StudentEntity;
 import com.in28minutes.springboot.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,41 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping("/students/{studentId}/courses")
+@RequestMapping("/students/")
 public class StudentController {
 
     @Autowired
     private StudentService studentService;
 
-    @GetMapping()
-    public List<Course> retrieveCoursesForStudent(@PathVariable String studentId) {
-        return studentService.retrieveCourses(studentId);
+    @GetMapping("getAll")
+    public List<StudentEntity> getAllStudents() {
+        return studentService.retrieveAllStudents();
     }
 
-	@GetMapping("/{courseId}")
-	public Course retrieveDetailsForCourse(
-            @PathVariable String studentId,
-            @PathVariable String courseId) {
-		return studentService.retrieveCourse(studentId, courseId);
-	}
-
-    @PostMapping()
-    public ResponseEntity<Void> registerStudentForCourse(
-            @PathVariable String studentId,
-            @RequestBody Course newCourse) {
-
-        Course course = studentService.addCourse(studentId, newCourse);
-
-        if (course == null)
-            return ResponseEntity.noContent().build();
-
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(course.id())
-                .toUri();
-
-        return ResponseEntity.created(location)
-                .build();
-    }
 
 }

@@ -124,40 +124,39 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.in28minutes.springboot.model.Course;
 import com.in28minutes.springboot.service.StudentService;
 
 @RestController
 public class StudentController {
 
-	@Autowired
-	private StudentService studentService;
+    @Autowired
+    private StudentService studentService;
 
-	@GetMapping("/students/{studentId}/courses")
-	public List<Course> retrieveCoursesForStudent(@PathVariable String studentId) {
-		return studentService.retrieveCourses(studentId);
-	}
-	
-	@GetMapping("/students/{studentId}/courses/{courseId}")
-	public Course retrieveDetailsForCourse(@PathVariable String studentId,
-			@PathVariable String courseId) {
-		return studentService.retrieveCourse(studentId, courseId);
-	}
-	
-	@PostMapping("/students/{studentId}/courses")
-	public ResponseEntity<Void> registerStudentForCourse(
-			@PathVariable String studentId, @RequestBody Course newCourse) {
+    @GetMapping("/students/{studentId}/courses")
+    public List<Course> retrieveCoursesForStudent(@PathVariable String studentId) {
+        return studentService.retrieveCourses(studentId);
+    }
 
-		Course course = studentService.addCourse(studentId, newCourse);
+    @GetMapping("/students/{studentId}/courses/{courseId}")
+    public Course retrieveDetailsForCourse(@PathVariable String studentId,
+                                           @PathVariable String courseId) {
+        return studentService.retrieveCourse(studentId, courseId);
+    }
 
-		if (course == null)
-			return ResponseEntity.noContent().build();
+    @PostMapping("/students/{studentId}/courses")
+    public ResponseEntity<Void> registerStudentForCourse(
+            @PathVariable String studentId, @RequestBody Course newCourse) {
 
-		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path(
-				"/{id}").buildAndExpand(course.getId()).toUri();
+        Course course = studentService.addCourse(studentId, newCourse);
 
-		return ResponseEntity.created(location).build();
-	}
+        if (course == null)
+            return ResponseEntity.noContent().build();
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path(
+                "/{id}").buildAndExpand(course.getId()).toUri();
+
+        return ResponseEntity.created(location).build();
+    }
 
 }
 ```
@@ -166,84 +165,84 @@ public class StudentController {
 ### /src/main/java/com/in28minutes/springboot/model/Course.java
 
 ```java
-package com.in28minutes.springboot.model;
+package com.in28minutes.springboot.entity;
 
 import java.util.List;
 
 public class Course {
-	private String id;
-	private String name;
-	private String description;
-	private List<String> steps;
+    private String id;
+    private String name;
+    private String description;
+    private List<String> steps;
 
-	// Needed by Caused by: com.fasterxml.jackson.databind.JsonMappingException:
-	// Can not construct instance of com.in28minutes.springboot.model.Course:
-	// no suitable constructor found, can not deserialize from Object value
-	// (missing default constructor or creator, or perhaps need to add/enable
-	// type information?)
-	public Course() {
+    // Needed by Caused by: com.fasterxml.jackson.databind.JsonMappingException:
+    // Can not construct instance of com.in28minutes.springboot.entity.Course:
+    // no suitable constructor found, can not deserialize from Object value
+    // (missing default constructor or creator, or perhaps need to add/enable
+    // type information?)
+    public Course() {
 
-	}
+    }
 
-	public Course(String id, String name, String description, List<String> steps) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.description = description;
-		this.steps = steps;
-	}
+    public Course(String id, String name, String description, List<String> steps) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.steps = steps;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public List<String> getSteps() {
-		return steps;
-	}
+    public List<String> getSteps() {
+        return steps;
+    }
 
-	@Override
-	public String toString() {
-		return String.format(
-				"Course [id=%s, name=%s, description=%s, steps=%s]", id, name,
-				description, steps);
-	}
+    @Override
+    public String toString() {
+        return String.format(
+                "Course [id=%s, name=%s, description=%s, steps=%s]", id, name,
+                description, steps);
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Course other = (Course) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Course other = (Course) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
+    }
 
 }
 ```
@@ -252,63 +251,63 @@ public class Course {
 ### /src/main/java/com/in28minutes/springboot/model/Student.java
 
 ```java
-package com.in28minutes.springboot.model;
+package com.in28minutes.springboot.entity;
 
 import java.util.List;
 
 public class Student {
-	private String id;
-	private String name;
-	private String description;
-	private List<Course> courses;
+    private String id;
+    private String name;
+    private String description;
+    private List<Course> courses;
 
-	public Student(String id, String name, String description,
-			List<Course> courses) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.description = description;
-		this.courses = courses;
-	}
+    public Student(String id, String name, String description,
+                   List<Course> courses) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.courses = courses;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public List<Course> getCourses() {
-		return courses;
-	}
+    public List<Course> getCourses() {
+        return courses;
+    }
 
-	public void setCourses(List<Course> courses) {
-		this.courses = courses;
-	}
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
 
-	@Override
-	public String toString() {
-		return String.format(
-				"Student [id=%s, name=%s, description=%s, courses=%s]", id,
-				name, description, courses);
-	}
+    @Override
+    public String toString() {
+        return String.format(
+                "Student [id=%s, name=%s, description=%s, courses=%s]", id,
+                name, description, courses);
+    }
 }
 ```
 ---
@@ -324,99 +323,97 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.in28minutes.springboot.entity.StudentEntity;
 import org.springframework.stereotype.Component;
-
-import com.in28minutes.springboot.model.Course;
-import com.in28minutes.springboot.model.Student;
 
 @Component
 public class StudentService {
 
-	private static List<Student> students = new ArrayList<>();
+    private static List<StudentEntity> students = new ArrayList<>();
 
-	static {
-		//Initialize Data
-		Course course1 = new Course("Course1", "Spring", "10 Steps", Arrays
-				.asList("Learn Maven", "Import Project", "First Example",
-						"Second Example"));
-		Course course2 = new Course("Course2", "Spring MVC", "10 Examples",
-				Arrays.asList("Learn Maven", "Import Project", "First Example",
-						"Second Example"));
-		Course course3 = new Course("Course3", "Spring Boot", "6K Students",
-				Arrays.asList("Learn Maven", "Learn Spring",
-						"Learn Spring MVC", "First Example", "Second Example"));
-		Course course4 = new Course("Course4", "Maven",
-				"Most popular maven course on internet!", Arrays.asList(
-						"Pom.xml", "Build Life Cycle", "Parent POM",
-						"Importing into Eclipse"));
+    static {
+        //Initialize Data
+        Course course1 = new Course("Course1", "Spring", "10 Steps", Arrays
+                .asList("Learn Maven", "Import Project", "First Example",
+                        "Second Example"));
+        Course course2 = new Course("Course2", "Spring MVC", "10 Examples",
+                Arrays.asList("Learn Maven", "Import Project", "First Example",
+                        "Second Example"));
+        Course course3 = new Course("Course3", "Spring Boot", "6K Students",
+                Arrays.asList("Learn Maven", "Learn Spring",
+                        "Learn Spring MVC", "First Example", "Second Example"));
+        Course course4 = new Course("Course4", "Maven",
+                "Most popular maven course on internet!", Arrays.asList(
+                "Pom.xml", "Build Life Cycle", "Parent POM",
+                "Importing into Eclipse"));
 
-		Student ranga = new Student("Student1", "Ranga Karanam",
-				"Hiker, Programmer and Architect", new ArrayList<>(Arrays
-						.asList(course1, course2, course3, course4)));
+        StudentEntity ranga = new StudentEntity("Student1", "Ranga Karanam",
+                "Hiker, Programmer and Architect", new ArrayList<>(Arrays
+                .asList(course1, course2, course3, course4)));
 
-		Student satish = new Student("Student2", "Satish T",
-				"Hiker, Programmer and Architect", new ArrayList<>(Arrays
-						.asList(course1, course2, course3, course4)));
+        StudentEntity satish = new StudentEntity("Student2", "Satish T",
+                "Hiker, Programmer and Architect", new ArrayList<>(Arrays
+                .asList(course1, course2, course3, course4)));
 
-		students.add(ranga);
-		students.add(satish);
-	}
+        students.add(ranga);
+        students.add(satish);
+    }
 
-	public List<Student> retrieveAllStudents() {
-		return students;
-	}
+    public List<StudentEntity> retrieveAllStudents() {
+        return students;
+    }
 
-	public Student retrieveStudent(String studentId) {
-		for (Student student : students) {
-			if (student.getId().equals(studentId)) {
-				return student;
-			}
-		}
-		return null;
-	}
+    public StudentEntity retrieveStudent(String studentId) {
+        for (StudentEntity student : students) {
+            if (student.getId().equals(studentId)) {
+                return student;
+            }
+        }
+        return null;
+    }
 
-	public List<Course> retrieveCourses(String studentId) {
-		Student student = retrieveStudent(studentId);
+    public List<Course> retrieveCourses(String studentId) {
+        StudentEntity student = retrieveStudent(studentId);
 
-		if (student == null) {
-			return null;
-		}
+        if (student == null) {
+            return null;
+        }
 
-		return student.getCourses();
-	}
+        return student.getCourses();
+    }
 
-	public Course retrieveCourse(String studentId, String courseId) {
-		Student student = retrieveStudent(studentId);
+    public Course retrieveCourse(String studentId, String courseId) {
+        StudentEntity student = retrieveStudent(studentId);
 
-		if (student == null) {
-			return null;
-		}
+        if (student == null) {
+            return null;
+        }
 
-		for (Course course : student.getCourses()) {
-			if (course.getId().equals(courseId)) {
-				return course;
-			}
-		}
+        for (Course course : student.getCourses()) {
+            if (course.getId().equals(courseId)) {
+                return course;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private SecureRandom random = new SecureRandom();
+    private SecureRandom random = new SecureRandom();
 
-	public Course addCourse(String studentId, Course course) {
-		Student student = retrieveStudent(studentId);
+    public Course addCourse(String studentId, Course course) {
+        StudentEntity student = retrieveStudent(studentId);
 
-		if (student == null) {
-			return null;
-		}
+        if (student == null) {
+            return null;
+        }
 
-		String randomId = new BigInteger(130, random).toString(32);
-		course.setId(randomId);
+        String randomId = new BigInteger(130, random).toString(32);
+        course.setId(randomId);
 
-		student.getCourses().add(course);
+        student.getCourses().add(course);
 
-		return course;
-	}
+        return course;
+    }
 }
 ```
 ---
@@ -471,73 +468,72 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import com.in28minutes.springboot.model.Course;
 import com.in28minutes.springboot.service.StudentService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = StudentController.class, secure = false)
 public class StudentControllerTest {
 
-	@Autowired
-	private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-	@MockBean
-	private StudentService studentService;
+    @MockBean
+    private StudentService studentService;
 
-	Course mockCourse = new Course("Course1", "Spring", "10Steps",
-			Arrays.asList("Learn Maven", "Import Project", "First Example",
-					"Second Example"));
+    Course mockCourse = new Course("Course1", "Spring", "10Steps",
+            Arrays.asList("Learn Maven", "Import Project", "First Example",
+                    "Second Example"));
 
-	String exampleCourseJson = "{\"name\":\"Spring\",\"description\":\"10Steps\",\"steps\":[\"Learn Maven\",\"Import Project\",\"First Example\",\"Second Example\"]}";
+    String exampleCourseJson = "{\"name\":\"Spring\",\"description\":\"10Steps\",\"steps\":[\"Learn Maven\",\"Import Project\",\"First Example\",\"Second Example\"]}";
 
-	@Test
-	public void retrieveDetailsForCourse() throws Exception {
+    @Test
+    public void retrieveDetailsForCourse() throws Exception {
 
-		Mockito.when(
-				studentService.retrieveCourse(Mockito.anyString(),
-						Mockito.anyString())).thenReturn(mockCourse);
+        Mockito.when(
+                studentService.retrieveCourse(Mockito.anyString(),
+                        Mockito.anyString())).thenReturn(mockCourse);
 
-		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
-				"/students/Student1/courses/Course1").accept(
-				MediaType.APPLICATION_JSON);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                "/students/Student1/courses/Course1").accept(
+                MediaType.APPLICATION_JSON);
 
-		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		System.out.println(result.getResponse());
-		String expected = "{id:Course1,name:Spring,description:10Steps}";
+        System.out.println(result.getResponse());
+        String expected = "{id:Course1,name:Spring,description:10Steps}";
 
-		// {"id":"Course1","name":"Spring","description":"10 Steps, 25 Examples and 10K Students","steps":["Learn Maven","Import Project","First Example","Second Example"]}
+        // {"id":"Course1","name":"Spring","description":"10 Steps, 25 Examples and 10K Students","steps":["Learn Maven","Import Project","First Example","Second Example"]}
 
-		JSONAssert.assertEquals(expected, result.getResponse()
-				.getContentAsString(), false);
-	}
+        JSONAssert.assertEquals(expected, result.getResponse()
+                .getContentAsString(), false);
+    }
 
-	@Test
-	public void createStudentCourse() throws Exception {
-		Course mockCourse = new Course("1", "Smallest Number", "1",
-				Arrays.asList("1", "2", "3", "4"));
+    @Test
+    public void createStudentCourse() throws Exception {
+        Course mockCourse = new Course("1", "Smallest Number", "1",
+                Arrays.asList("1", "2", "3", "4"));
 
-		// studentService.addCourse to respond back with mockCourse
-		Mockito.when(
-				studentService.addCourse(Mockito.anyString(),
-						Mockito.any(Course.class))).thenReturn(mockCourse);
+        // studentService.addCourse to respond back with mockCourse
+        Mockito.when(
+                studentService.addCourse(Mockito.anyString(),
+                        Mockito.any(Course.class))).thenReturn(mockCourse);
 
-		// Send course as body to /students/Student1/courses
-		RequestBuilder requestBuilder = MockMvcRequestBuilders
-				.post("/students/Student1/courses")
-				.accept(MediaType.APPLICATION_JSON).content(exampleCourseJson)
-				.contentType(MediaType.APPLICATION_JSON);
+        // Send course as body to /students/Student1/courses
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post("/students/Student1/courses")
+                .accept(MediaType.APPLICATION_JSON).content(exampleCourseJson)
+                .contentType(MediaType.APPLICATION_JSON);
 
-		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		MockHttpServletResponse response = result.getResponse();
+        MockHttpServletResponse response = result.getResponse();
 
-		assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
 
-		assertEquals("http://localhost/students/Student1/courses/1",
-				response.getHeader(HttpHeaders.LOCATION));
+        assertEquals("http://localhost/students/Student1/courses/1",
+                response.getHeader(HttpHeaders.LOCATION));
 
-	}
+    }
 
 }
 ```
